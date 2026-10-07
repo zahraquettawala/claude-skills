@@ -15,10 +15,10 @@ Help the user catch up on and reply to texts from friends and family in the macO
 
 ## Step 0: Pick a mode
 
-Before anything else, work out which mode the user wants. If their request already says, don't ask. For example, "mass respond", "reply to everyone", "do it headless" or "don't ask me each time" means **Mass respond**, and "help me with Erin's text" means **One by one**. Otherwise, ask once with AskUserQuestion:
+Your first step is to ask which mode the user wants, using AskUserQuestion, before you open or read any thread. Ask even when the user names just one person: "help me respond to Sarah" can still be a hands-off reply. Skip the question only when the user has already said how sends should be approved. For example, "mass respond", "go headless" or "don't ask me each time" means **Mass respond**, and "show me the draft first" means **One by one**. Ask once per session. Offer these two options:
 
 - **One by one**: Claude walks through each thread, shows each draft, and sends only after the user approves that message.
-- **Mass respond (hands-off)**: the user answers one round of questions (who to reply to, what tone, whether to add the tagline). Claude then replies to all of them without checking back.
+- **Mass respond (hands-off)**: the user answers one round of questions (who to reply to, what tone, whether to add the tagline). Claude then replies to all of them without checking back. If the user already named who to reply to, that's the "who" answer, so don't ask it again.
 
 ## AI tagline
 
