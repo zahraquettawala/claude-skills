@@ -36,7 +36,7 @@ Off by default on LinkedIn. Ask once per session whether to add one (default wor
 
 Use this whenever you list threads that need a reply, in either mode.
 
-1. Open `https://www.linkedin.com/messaging/` and use the **Unread** filter first. Also check the **Other** tab if the inbox has Focused/Other, and **Message requests** or InMail if present, since recruiters and new contacts often land there. Cover the time range the user asked for (default: unread, plus the last 2 weeks).
+1. Open `https://www.linkedin.com/messaging/?filter=unread` for the **Unread** list, then also go through **every thread from the last few days** in the main inbox (`https://www.linkedin.com/messaging/`). The Unread filter misses messages LinkedIn has already marked read (for example one the user glanced at on their phone). Also check the **InMail**, **Jobs** and **Other** tabs or filters and **Message requests** if present, since recruiters and new contacts often land there. Cover the time range the user asked for (default: unread, plus the last 2 weeks). Click **Load more conversations** to go further back. If the user names someone you didn't list, search for them in **Search messages**.
 2. Read the thread list with `get_page_text` or `read_page` rather than screenshots.
 3. **The list preview is not enough.** It may show the user's own last message (prefixed "You:") or the other person's. Open each thread before listing it and check who sent the last message.
 4. **List a thread only when the user owes the reply**: the last message is from the other person and invites a response.
@@ -99,7 +99,8 @@ For each recruiter message, summarize the role in a few lines: company, title, l
 
 ## Sending
 
-- Click into the message box at the bottom of the open thread and type the reply. Use Shift+Enter for line breaks. Click the **Send** button rather than relying on Enter, because LinkedIn's Enter-to-send setting varies.
+- Click into the message box at the bottom of the open thread (`find` "Write a message") and type the reply one paragraph at a time, pressing Shift+Return between paragraphs, because a plain Return may send. Before sending, read the box back (for example the `.msg-form__contenteditable` element's text) to check the full message is there. Then click the **Send** button (`find` "Send", the submit button) rather than relying on Enter, because LinkedIn's Enter-to-send setting varies.
+- Opening a thread marks it as read on LinkedIn. That's fine, but mention it when you open threads only to read them.
 - Before typing, check the box is empty. If it holds an unsent draft, don't overwrite it: ask in one-by-one mode, and skip and flag it in mass-respond mode.
 - After sending, read the thread again (with `get_page_text`) to confirm the message appears once in the right thread.
 
