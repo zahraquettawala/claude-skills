@@ -1,6 +1,6 @@
 ---
 name: responding-to-my-texts
-description: Read text threads in the Messages app on the user's Mac and reply in the user's own voice and tone with each person, either one thread at a time with approval for each reply, or as a hands-off batch where the user picks the recipients once.
+description: Reply to the user's texts in their own voice and tone with each person. On the Mac it reads and sends in the Messages app, one thread at a time or as a hands-off batch; on the phone it defaults to drafting copy-ready replies from a screenshot.
 ---
 
 # Responding to my texts
@@ -11,28 +11,35 @@ Help the user catch up on and reply to texts from friends and family in the macO
 
 - A Mac with the Messages app signed in (iMessage/SMS synced from iPhone).
 - Computer use turned on in the Claude desktop app, with the session linked to that Mac. Load the computer-use tools and follow the computer-use skill's access flow: resolve and request access to **Messages** only, and prefer the background `app_*` tools so the user can keep working.
-- If computer use isn't available, use "From the phone (Mac not reachable)" below.
+- If computer use isn't available, use "Phone mode" below.
 
-## From the phone (Mac not reachable)
+## Phone mode (the default when the user is on their phone)
 
-The user may start this skill from the Claude phone app. Phones don't give apps access to iMessage, so the Mac is what actually reads and sends. When the session is linked to the Mac and it answers, run the skill normally on the Mac, headless if the user asked. The user doesn't need to be at the Mac.
+**Decide where the user is before anything else.** The user is on their phone when any of these are true:
+- the session has phone tools, such as `mcp__claude-device__*` (calendar, reminders, location)
+- the user says they're on their phone
+- they share a phone screenshot of a thread
 
-When the Mac can't be reached, say so in one line: no computer tools are present, or calls time out or report the device isn't connected. Don't retry calls that change anything. Then offer two paths, in the same message:
+Phones don't give apps access to iMessage, so Claude can't read or send texts from the phone itself.
 
-1. **Wake the Mac:** open the lid or wake it, make sure it's online, and open the Claude desktop app. Then ask again, and Claude runs the normal flow, including headless.
-2. **Paste mode (works right now):**
+- **On the phone, default to phone mode.** Don't try to reach the Mac or load computer-use tools, and don't ask the mode question; go straight to the phone-mode steps below.
+- **Use the Mac from the phone only when the user asks for it** in their own words ("use my Mac", "send it from my laptop", "do it headless on my Mac"). Then run the normal Mac flow below. If the Mac can't be reached (no computer tools, calls time out or report the device isn't connected), say so in one line, don't retry calls that change anything, and fall back to phone mode. To make the Mac reachable, they open its lid, check it's online, and open the Claude desktop app.
+- **Not on the phone** (desktop app, or the Mac's computer tools are present and the user hasn't said they're on their phone): skip this section and use the Mac flow.
+
+**Phone-mode steps:**
    1. The user shares a screenshot of the thread from their phone, or pastes the latest messages. For a long thread, ask for one or two screenshots that include some of the user's own blue bubbles, so you can learn their voice.
    2. Read the screenshot carefully: who said what (the grey bubbles and names in a group chat are the other people), and the timestamps.
    3. Learn the user's voice and tone with this person from their blue bubbles, as usual.
    4. Draft the reply. Show each bubble as its own code block, exactly as it should be sent, so the user can long-press, copy and paste it into Messages one bubble at a time. Add the AI tagline as the last block if it's on.
-   5. Even if the user asked for headless, nothing can be sent from here. Say once that they'll need to paste and send the reply themselves, and keep the replies short enough to make that easy.
-   6. If they want a different version, redraft; don't re-explain the setup.
+   5. Nothing can be sent from the phone, even if the user says headless. Give the copy-ready bubbles without asking for approval first, and say once (the first time in a session) that they paste and send it themselves.
+   6. If the screenshot shows several threads or a group chat, reply to what the user asked about. If they asked for "everyone", draft a block per thread with the thread name as a heading.
+   7. If they want a different version, redraft; don't re-explain the setup.
 
-Never claim a message was sent in paste mode.
+Never claim a message was sent in phone mode.
 
 ## Step 0: Pick a mode
 
-Your first step is to ask which mode the user wants, using AskUserQuestion, before you open or read any thread. Ask even when the user names just one person: "help me respond to Sarah" can still be a hands-off reply. Skip the question only when the user has already said how sends should be approved. For example, "mass respond", "go headless" or "don't ask me each time" means **Mass respond**, and "show me the draft first" means **One by one**. Ask once per session. Offer these two options:
+Unless phone mode applies (see above), your first step is to ask which mode the user wants, using AskUserQuestion, before you open or read any thread. Ask even when the user names just one person: "help me respond to Sarah" can still be a hands-off reply. Skip the question only when the user has already said how sends should be approved. For example, "mass respond", "go headless" or "don't ask me each time" means **Mass respond**, and "show me the draft first" means **One by one**. Ask once per session. Offer these two options:
 
 - **One by one**: Claude walks through each thread, shows each draft, and sends only after the user approves that message.
 - **Mass respond (hands-off)**: the user answers one round of questions (who to reply to, and whether to add the tagline). Claude then replies to all of them without checking back. If the user already named who to reply to, that's the "who" answer, so don't ask it again.

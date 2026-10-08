@@ -29,13 +29,15 @@ Without computer use, you can still paste a thread or screenshot into the chat a
 
 ### Using responding-to-my-texts from your phone
 
-Your Mac does the reading and sending, so you can start the skill from the Claude phone app as long as the Mac is reachable:
+On your phone, the skill defaults to **phone mode**: send a screenshot of the thread and it writes each bubble ready to copy and send. iOS doesn't let apps read or send iMessages, so you send it yourself.
+
+To have it send for you while you're on your phone, say "use my Mac". Your Mac then does the reading and sending, as long as it's reachable:
 
 - Keep the Mac awake on power: **System Settings → Battery → Options → "Prevent automatic sleeping on power adapter when the display is off"**. Or use a keep-awake app like Amphetamine.
 - Keep the **Claude desktop app** open, and add it under **System Settings → General → Login Items** so it reopens after a restart.
 - Keep **Computer use** turned on in the Claude desktop app.
 
-If the Mac can't be reached, the skill switches to paste mode: share a screenshot of the thread from your phone, and it writes each bubble ready to copy and send.
+If the Mac can't be reached, the skill falls back to phone mode.
 
 ## Privacy
 
