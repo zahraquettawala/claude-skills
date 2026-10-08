@@ -27,6 +27,16 @@ Skills for [Claude](https://claude.ai). Each folder is one skill: a `SKILL.md` f
 
 Without computer use, you can still paste a thread or screenshot into the chat and the skill will help you draft a reply.
 
+### Using responding-to-my-texts from your phone
+
+Your Mac does the reading and sending, so you can start the skill from the Claude phone app as long as the Mac is reachable:
+
+- Keep the Mac awake on power: **System Settings → Battery → Options → "Prevent automatic sleeping on power adapter when the display is off"**. Or use a keep-awake app like Amphetamine.
+- Keep the **Claude desktop app** open, and add it under **System Settings → General → Login Items** so it reopens after a restart.
+- Keep **Computer use** turned on in the Claude desktop app.
+
+If the Mac can't be reached, the skill switches to paste mode: share a screenshot of the thread from your phone, and it writes each bubble ready to copy and send.
+
 ## Privacy
 
 The skill only opens the threads you ask about (or the recent threads it scans when you choose mass respond), never sends anything without your OK, and doesn't copy your messages anywhere else. In one-by-one mode you approve every message. In mass-respond mode, picking who to reply to is your OK for that batch.

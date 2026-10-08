@@ -11,7 +11,24 @@ Help the user catch up on and reply to texts from friends and family in the macO
 
 - A Mac with the Messages app signed in (iMessage/SMS synced from iPhone).
 - Computer use turned on in the Claude desktop app, with the session linked to that Mac. Load the computer-use tools and follow the computer-use skill's access flow: resolve and request access to **Messages** only, and prefer the background `app_*` tools so the user can keep working.
-- If computer use isn't available, ask the user to paste the thread or a screenshot instead. Then go straight to "Learn the user's voice" in the one-by-one flow.
+- If computer use isn't available, use "From the phone (Mac not reachable)" below.
+
+## From the phone (Mac not reachable)
+
+The user may start this skill from the Claude phone app. Phones don't give apps access to iMessage, so the Mac is what actually reads and sends. When the session is linked to the Mac and it answers, run the skill normally on the Mac, headless if the user asked. The user doesn't need to be at the Mac.
+
+When the Mac can't be reached, say so in one line: no computer tools are present, or calls time out or report the device isn't connected. Don't retry calls that change anything. Then offer two paths, in the same message:
+
+1. **Wake the Mac:** open the lid or wake it, make sure it's online, and open the Claude desktop app. Then ask again, and Claude runs the normal flow, including headless.
+2. **Paste mode (works right now):**
+   1. The user shares a screenshot of the thread from their phone, or pastes the latest messages. For a long thread, ask for one or two screenshots that include some of the user's own blue bubbles, so you can learn their voice.
+   2. Read the screenshot carefully: who said what (the grey bubbles and names in a group chat are the other people), and the timestamps.
+   3. Learn the user's voice and tone with this person from their blue bubbles, as usual.
+   4. Draft the reply. Show each bubble as its own code block, exactly as it should be sent, so the user can long-press, copy and paste it into Messages one bubble at a time. Add the AI tagline as the last block if it's on.
+   5. Even if the user asked for headless, nothing can be sent from here. Say once that they'll need to paste and send the reply themselves, and keep the replies short enough to make that easy.
+   6. If they want a different version, redraft; don't re-explain the setup.
+
+Never claim a message was sent in paste mode.
 
 ## Step 0: Pick a mode
 
