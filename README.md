@@ -30,7 +30,7 @@ Without computer use, you can still paste a thread or screenshot into the chat a
 
 ### Requirements for tiktok-edit
 
-This one runs in **Claude Code** on your laptop rather than as an uploaded skill, because it edits video with tools installed on your computer (ffmpeg, whisper.cpp, Node) and the [i-hate-editing](https://github.com/ranahaani/i-hate-editing) skill. Setup steps are in [tiktok-edit/install.md](tiktok-edit/install.md). For the CapCut project export you also need CapCut desktop.
+This one runs in **Claude Code** on your laptop rather than as an uploaded skill, because it edits video with tools installed on your computer (ffmpeg, whisper.cpp, Node) and the [i-hate-editing](https://github.com/ranahaani/i-hate-editing) skill. Setup steps are in [tiktok-edit/install.md](tiktok-edit/install.md), and [tiktok-edit/TUTORIAL.md](tiktok-edit/TUTORIAL.md) walks through making a video, with every Terminal command. For the CapCut project export you also need CapCut desktop.
 
 ### Using responding-to-my-texts from your phone
 
