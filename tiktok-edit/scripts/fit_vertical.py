@@ -12,6 +12,7 @@ fitted copies.
     fit_vertical.py screen.mov -o f.mp4 --mode panel --panel-y 0.14
     fit_vertical.py screen.mov -o f.mp4 --mode region --region 0.55,0.1,0.4,0.5
     fit_vertical.py *.mp4 --out-dir fitted/                         # batch
+    fit_vertical.py sideways.mp4 -o f.mp4 --rotate 90               # turn upright
 
 Modes:
   auto    vertical stays as is; landscape and square go to `blur`.
@@ -23,6 +24,14 @@ Modes:
   region  crop to one area of the source (x,y,w,h as fractions), then fill. For
           zooming into the part of a screen recording that matters.
 
+--rotate 90|180|270 turns the picture clockwise by that much FIRST, for
+footage recorded sideways or upside down. Decide it by looking at a contact
+sheet (contact_sheet.py), never from metadata: a camera held sideways
+without its vertical mode records sideways pixels with no rotation tag, so
+nothing reports it. Rotation tags that ARE present are already applied when
+the file is decoded, so --rotate fixes only what still looks wrong on the
+sheet.
+
 Every output carries an audio track (silent if the source had none), because
 render.py fades audio on every segment and fails on a video-only file.
 """
@@ -33,6 +42,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _common import FPS, H, W, die, probe, sh  # noqa: E402
+
+TURN = {90: "transpose=1", 180: "hflip,vflip", 270: "transpose=2"}
 
 
 def vfilter(info, mode, focus_x, focus_y, panel_y, region, ground):
@@ -65,8 +76,14 @@ def fit(src, dst, args):
     info = probe(src)
     if not info["w"]:
         die(f"could not probe {src}")
-    vf, used = vfilter(info, args.mode, args.focus_x, args.focus_y,
+    shape = dict(info)
+    if args.rotate in (90, 270):
+        shape["w"], shape["h"] = info["h"], info["w"]
+    vf, used = vfilter(shape, args.mode, args.focus_x, args.focus_y,
                        args.panel_y, args.region, args.ground)
+    if args.rotate:
+        vf = f"{TURN[args.rotate]},{vf}"
+        used += f", turned {args.rotate}°"
     vf += f",fps={args.fps},setsar=1,format=yuv420p"
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(src)]
     if not info["audio"]:
@@ -89,6 +106,8 @@ def main():
     ap.add_argument("sources", nargs="+")
     ap.add_argument("-o", "--out")
     ap.add_argument("--out-dir")
+    ap.add_argument("--rotate", type=int, default=0, choices=[0, 90, 180, 270],
+                    help="turn the picture clockwise first (sideways footage)")
     ap.add_argument("--mode", default="auto",
                     choices=["auto", "crop", "blur", "panel", "region"])
     ap.add_argument("--focus-x", type=float, default=0.5)

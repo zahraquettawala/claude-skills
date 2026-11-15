@@ -27,7 +27,7 @@ colour (see SKILL.md).
 
 | i-hate-editing step | Change |
 |---|---|
-| 1–4 Read, inventory, transcribe, pack | As is. Fit any non-vertical source with `fit_vertical.py --mode crop` first, choosing `--focus-x` from a contact sheet so the face survives. |
+| 1–4 Read, inventory, transcribe, pack | As is, after the upright check in SKILL.md (contact-sheet every clip; turn sideways ones with `fit_vertical.py --rotate`, and transcribe the upright copies). Fit any non-vertical source with `fit_vertical.py --mode crop` first, choosing `--focus-x` from a contact sheet so the face survives. |
 | 5 Plan the cut | Apply the cut rules in `styles/shivani.md` (no dead air, intro kept whole, a beat after the hook, 30 s default, end on the punchiest line). Look for the line that states the payoff and make sure it is spoken by ~1.5 s. If it comes later in the take, move it to the front (a cold-open line followed by the build-up is a normal TikTok structure). If they open with "hi, my name is…", keep it whole as Shivani's style says, and make sure the hook follows straight after it. |
 | 6 Assemble | `edl.json` may set `"speed": 1.1`–`1.2` for punchy pacing (i-hate-editing applies it in the render; hard rule 9c). |
 | 7–8 Verify, present | As is. **Stop and wait for approval.** |

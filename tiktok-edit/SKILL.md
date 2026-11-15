@@ -45,7 +45,24 @@ this order:
 ## Pick the workflow
 
 Look at the footage before choosing: `ffprobe` every file, and run
-`contact_sheet.py` on anything without speech.
+`contact_sheet.py` on **every** clip and photo, then read the sheets.
+
+**Upright check, every time.** On each sheet, check the picture is upright:
+people standing, text reading left to right, sky at the top. Vloggers often
+hold the camera sideways, and that footage carries no rotation tag, so no
+probe catches it; only looking does. For anything sideways or upside down,
+make an upright copy and use it from then on instead of the original:
+
+```bash
+python3 $TT/scripts/fit_vertical.py <clip> -o <studio>/fitted/<name>.mp4 --rotate 90
+python3 $TT/scripts/contact_sheet.py <studio>/fitted/<name>.mp4 --out-dir <studio>/sheets
+```
+
+`--rotate` is clockwise: 90 when the top of the picture points left, 270
+when it points right, 180 when upside down. Re-sheet the fixed copy and look
+again before going on. Photos get the same check (`screenshot_card.py
+--rotate`). Tell the person which files were turned. Never present a cut
+built on a sideways clip.
 
 | Footage | Workflow | What drives the cut |
 |---|---|---|

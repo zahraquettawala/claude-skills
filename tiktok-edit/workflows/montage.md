@@ -17,7 +17,8 @@ authority on time (i-hate-editing principle 3), just different audio.
 python3 $TT/scripts/contact_sheet.py <footage>/*.mp4 --out-dir <studio>/sheets
 ```
 
-Read every sheet. For each clip note: what it shows, where the best 1–4 s
+Read every sheet. First, the upright check (SKILL.md): anything sideways or
+upside down gets `--rotate` in the next step. For each clip note: what it shows, where the best 1–4 s
 are (by cell time), whether the subject is left, centre or right, and
 whether it has motion (motion on a beat hits harder than a static shot).
 

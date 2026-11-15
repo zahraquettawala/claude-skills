@@ -4,6 +4,7 @@
     screenshot_card.py chat.png --studio studio --start 6.2 --duration 3
     screenshot_card.py chat.png --studio studio --start 6.2 --crop 0,310,1170,420
 
+A sideways photo is turned upright with --rotate 90|180|270 (clockwise).
 Crop first to just the part that matters (one message, one number): --crop
 x,y,w,h in pixels of the screenshot. The card is scaled to 968 px wide with a
 4 px border, turned into a short still clip with silent audio, and written
@@ -47,7 +48,10 @@ def main():
     ap.add_argument("--start", type=float, required=True,
                     help="output-timeline second the card appears")
     ap.add_argument("--duration", type=float, default=3.0)
-    ap.add_argument("--crop", default=None, help="x,y,w,h in screenshot pixels")
+    ap.add_argument("--crop", default=None,
+                    help="x,y,w,h in pixels of the upright picture")
+    ap.add_argument("--rotate", type=int, default=0, choices=[0, 90, 180, 270],
+                    help="turn the picture clockwise first (sideways photo)")
     ap.add_argument("--border", default="white")
     ap.add_argument("--name", default=None)
     args = ap.parse_args()
@@ -65,7 +69,9 @@ def main():
     clip = out_dir / f"{name}.mp4"
 
     w, b = STYLE["width_px"], STYLE["border_px"]
-    vf = []
+    # Turn first, so --crop is given in the upright picture's pixels.
+    vf = [{90: "transpose=1", 180: "hflip,vflip", 270: "transpose=2"}[args.rotate]] \
+        if args.rotate else []
     if args.crop:
         x, y, cw, ch = (int(v) for v in args.crop.split(","))
         vf.append(f"crop={cw}:{ch}:{x}:{y}")

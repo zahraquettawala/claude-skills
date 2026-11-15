@@ -14,6 +14,9 @@ are editing decisions.
 
 - **1080x1920, 9:16, 30 fps** (keep 60 only when the source is 60 and the
   motion needs it: sport, gaming, fast screen scrolls).
+- **Every source is upright before anything else.** Check each clip's
+  contact sheet by eye; sideways recordings carry no rotation tag. Turn them
+  with `fit_vertical.py --rotate` (see SKILL.md, "Upright check").
 - **Every source gets fitted before the cut** (`fit_vertical.py`).
   i-hate-editing's render sizes everything to the first source and
   letterboxes the rest with black. Black bars on TikTok read as a repost.
