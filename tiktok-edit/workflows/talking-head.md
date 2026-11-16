@@ -1,5 +1,9 @@
 # Talking-head
 
+One long unscripted take (sitting down and talking it through)? Use
+`workflows/ramble.md` instead: it adds an outline, a paper edit to approve,
+filler and dead-air removal, and a check that no key fact was cut.
+
 i-hate-editing was built for this. Run its process (`$IHE/SKILL.md`, steps
 1–13) with these changes.
 

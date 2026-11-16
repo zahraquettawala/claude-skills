@@ -66,7 +66,8 @@ built on a sideways clip.
 
 | Footage | Workflow | What drives the cut |
 |---|---|---|
-| Someone talking to camera | `workflows/talking-head.md` | The transcript (i-hate-editing as is) |
+| Someone talking to camera, scripted or in short takes | `workflows/talking-head.md` | The transcript (i-hate-editing as is) |
+| One long unscripted take (a sit-down ramble) | `workflows/ramble.md` | An outline of what was said, then the transcript |
 | Clips with no talking, cut to a song or sound | `workflows/montage.md` | The beat grid (`music_beats.py`) |
 | A screen recording, narrated or silent | `workflows/screen-recording.md` | Dead-time detection + transcript |
 | A voiceover over stock, B-roll or images | `workflows/voiceover.md` | The voiceover's transcript |
@@ -201,6 +202,7 @@ CapCut's cloud space (same account), then open it in the phone app.
 | `tiktok_export.py` | Final encode, loudness, no-music copy, safe-zone frames |
 | `capcut_export.py` | The same edit as an editable CapCut desktop project |
 | `apply_style.py` | Restyles the composition to a style preset, then renders |
+| `ramble.py` | Ramble cuts: fillers, untranscribed ums and dead air out; paper edit; must-keep check |
 | `screenshot_card.py` | Screenshot to floating card clip, with its pop/whoosh |
 
 All need only ffmpeg and Python 3.10+. `music_beats.py analyze` also needs

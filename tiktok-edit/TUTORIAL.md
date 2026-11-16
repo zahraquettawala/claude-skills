@@ -105,6 +105,19 @@ Paste this (edit the title part if you already know your title):
 The first video takes longest (it downloads a speech model). Claude shows you
 the rough cut and **waits for your OK** before adding captions and the title.
 
+**Sit-down ramble instead?** If it's one long take of you talking it through,
+paste this instead:
+
+> This is a sit-down ramble. Use the tiktok-edit skill's ramble workflow in
+> Shivani's style. Cut the ums and dead air, find the story, and keep every
+> important fact. Show me the outline and what you plan to cut before you cut
+> anything. Use ~/Developer/i-hate-editing/.venv/bin/python for every Python
+> script. Use my taste.md and profile.yml from ~/Movies/tiktok-keep if they
+> exist. Also export the CapCut project.
+
+It will show you the story it found and everything it plans to cut, and wait
+for your OK, before cutting.
+
 ### 8. Give feedback
 
 Just talk to it, with timestamps where you can:
