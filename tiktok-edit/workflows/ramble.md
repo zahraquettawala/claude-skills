@@ -23,9 +23,21 @@ python $TT/scripts/ramble.py scan --studio <studio> --source <ramble.mp4>
 
 `scan.md` counts the fillers, the untranscribed ums (Whisper tidies speech, so
 many ums are missing from the transcript; the scan finds them as sound between
-words), the dead air, and the soft fillers ("like", "so", "you know"). If the
-speech threshold it prints looks wrong for the room (lots of "sounds" that are
-really background noise), pass `--thr-db` a few dB higher everywhere below.
+words), the dead air, and the soft fillers ("like", "so", "you know", "I
+mean").
+
+**Nobody picks fillers by hand.** um/uh/hmm, stutters, untranscribed ums and
+dead air are always cut. Soft fillers are judged automatically from their
+pauses and neighbours (`--soft auto`): "it was, like, amazing" loses the
+"like", "I like it" keeps it. Only report totals to the person ("cut 41 ums,
+12 filler likes and 2 min of dead air"). If they say too many or too few went,
+change the level for everything (`--soft more` / `--soft keep`) and record it
+in `taste.md`. If you spot a single wrong call while checking the cut, fix
+that word with `word_overrides.json`; never hand them a list to go through.
+
+If the speech threshold the scan prints looks wrong for the room (lots of
+"sounds" that are really background noise), pass `--thr-db` a few dB higher
+everywhere below.
 
 ## 2. Outline: everything that was said
 
@@ -51,6 +63,23 @@ Then list every INFO item's exact words in `<studio>/mustkeep.json`:
 
 Use the speaker's exact words from the transcript, short enough to be one
 phrase.
+
+## Talking about an app or product
+
+When the video is about something on a screen (their app, a website), ask
+once for what can be shown: screenshots, or a screen recording of the app
+being used. Then:
+
+- Screenshots become floating cards at the moments the feature is mentioned
+  (`screenshot_card.py`, cropped to the part that matters; Shivani's style
+  puts 3–4 in, one inside the first 10 s).
+- A screen recording becomes short inserts over the voice: fit it with
+  `fit_vertical.py --mode panel` (or `region` to zoom into one part), cut the
+  pieces that match what is being said, and lay them as `broll.json`
+  overlays. Keep each to 2–4 s and the face on screen for the hook and the
+  ending.
+- The app's name goes into `profile.yml` `names` so captions spell it right.
+- Never mock up an app screen. Use their real screenshots.
 
 ## 3. Story: choose and order
 
@@ -91,7 +120,8 @@ Show the person, in plain words:
 3. **What you cut**, every block, with a few words on why ("tangent about
    parking", "said again better at 3:10"). Flag anything you were unsure of.
 4. The must-keep list.
-5. The length, before and after.
+5. The length, before and after, and one line of totals: how many ums,
+   filler words and seconds of dead air were cut. Not a list.
 
 `paper_edit.md` has the full line-by-line view for them to check. **Wait for
 their OK.** Rendering a cut they have not agreed to wastes the slowest step,

@@ -92,31 +92,42 @@ claude
 
 ### 7. Tell it what to make
 
-Paste this (edit the title part if you already know your title):
+Start your message with the **mode**, so Claude takes the right path. If you
+leave it out, Claude looks at the footage, guesses, and asks you to confirm.
 
-> Make these clips into a TikTok using the tiktok-edit skill, in Shivani's
-> style. Only use the .MP4 files (and the photos if they fit). Some clips may
-> be sideways, so check they're upright. For the title, write two short lines
-> from what I say and show me before adding it. Use
-> ~/Developer/i-hate-editing/.venv/bin/python for every Python script. Use my
-> taste.md and profile.yml from ~/Movies/tiktok-keep if they exist. Also
-> export the CapCut project.
+**Talking head** (you sitting and talking, even if it's one long ramble):
 
-The first video takes longest (it downloads a speech model). Claude shows you
-the rough cut and **waits for your OK** before adding captions and the title.
-
-**Sit-down ramble instead?** If it's one long take of you talking it through,
-paste this instead:
-
-> This is a sit-down ramble. Use the tiktok-edit skill's ramble workflow in
-> Shivani's style. Cut the ums and dead air, find the story, and keep every
-> important fact. Show me the outline and what you plan to cut before you cut
-> anything. Use ~/Developer/i-hate-editing/.venv/bin/python for every Python
+> Mode: talking head. Use the tiktok-edit skill. Cut the ums and dead air,
+> find the story, and keep every important fact. Show me the plan before you
+> cut. For the title, write two short lines from what I say and show me
+> first. Use ~/Developer/i-hate-editing/.venv/bin/python for every Python
 > script. Use my taste.md and profile.yml from ~/Movies/tiktok-keep if they
 > exist. Also export the CapCut project.
 
-It will show you the story it found and everything it plans to cut, and wait
-for your OK, before cutting.
+If it's about your app, add: *"It's about my app. I'll give you screenshots
+/ a screen recording to show while I talk about it."* Put those files in the
+same folder.
+
+**Vlog** (clips from your day, out and about):
+
+> Mode: vlog. Use the tiktok-edit skill. Only use the .MP4 files (and the
+> photos if they fit). Some clips may be sideways, so check they're upright.
+> Tell the story of the day with the best moment first. Show me the plan
+> before you cut. Use ~/Developer/i-hate-editing/.venv/bin/python for every
+> Python script. Use my taste.md and profile.yml from ~/Movies/tiktok-keep if
+> they exist. Also export the CapCut project.
+
+**What happens next, in both modes:**
+
+1. It looks at all the footage (the first video takes longest: it downloads
+   a speech model).
+2. It shows you **the plan**: the main point or the story of the day, the
+   hook, what it kept and what it cut and why, how long it'll be, and one
+   line of totals (like "cut 41 ums, 12 filler likes, 2 min of dead air").
+   You don't pick ums or filler words yourself; it decides those. You just
+   check the story and say OK or what to change.
+3. It cuts and shows you the rough cut. **Waits for your OK** again.
+4. Captions, title, sound, the finished video and the CapCut project.
 
 ### 8. Give feedback
 

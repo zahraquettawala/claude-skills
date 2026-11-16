@@ -47,6 +47,9 @@ def main():
     ap.add_argument("--studio", default="studio")
     ap.add_argument("--style", default="shivani")
     ap.add_argument("--title", default=None, help='two short lines: "line one\\nline two"')
+    ap.add_argument("--title-seconds", type=float, default=None,
+                    help="show the title for this long only; default from the style "
+                         "(the whole video for Shivani's style)")
     ap.add_argument("--render", action="store_true")
     ap.add_argument("--low-memory", action="store_true")
     args = ap.parse_args()
@@ -96,6 +99,9 @@ def main():
     doc = doc.replace("    </style>", css + "    </style>", 1)
 
     clips = []
+    title_len = args.title_seconds or (duration if ttl.get("whole_video", True)
+                                       else float(ttl.get("seconds", 3.0)))
+    title_len = min(title_len, duration)
     if args.title:
         lines = args.title.replace("\\n", "\n").split("\n")
         if len(lines) > ttl.get("max_lines", 2):
@@ -104,7 +110,7 @@ def main():
         inner = "<br>".join(html.escape(x.strip()) for x in lines)
         clips.append(
             f'      <div id="tt-title" class="clip" data-start="0" '
-            f'data-duration="{duration:.2f}" data-track-index="{TRACK_TITLE}">\n'
+            f'data-duration="{title_len:.2f}" data-track-index="{TRACK_TITLE}">\n'
             f'        <div class="tt-title">{inner}</div>\n      </div>')
 
     floats_path = studio / "floats.json"

@@ -170,6 +170,8 @@ def main():
     ap.add_argument("--style", default=None,
                     help="a preset from styles/ (e.g. shivani): one-word "
                          "captions, font, held title, card placement")
+    ap.add_argument("--title-seconds", type=float, default=None,
+                    help="show the title for this long only; default from the style")
     ap.add_argument("--title", default=None,
                     help='title held for the whole video: "line one\\nline two"')
     ap.add_argument("--mac", action="store_true", default=platform.system() == "Darwin",
@@ -456,12 +458,15 @@ def build(cc, script, project, studio, edl, tl, args):
         script.add_track(cc.TrackType.text, "title")
         script.add_segment(cc.TextSegment(
             args.title.replace("\\n", "\n"),
-            cc.Timerange(0, us(tl["predicted_duration"])), font=font,
+            cc.Timerange(0, us(min(tl["predicted_duration"], args.title_seconds or (
+                tl["predicted_duration"] if ttl.get("whole_video", True)
+                else float(ttl.get("seconds", 3.0)))))), font=font,
             style=cc.TextStyle(size=ttl["capcut_size"], align=1,
                                auto_wrapping=True, max_line_width=TEXT_WIDTH),
             border=border, clip_settings=cc.ClipSettings(transform_y=ttl["y"])),
             "title")
-        report.append("title held for the whole video")
+        report.append("title" + ("" if args.title_seconds or not ttl.get("whole_video", True)
+                                 else " held for the whole video"))
     cards = (load(studio / "cards.json", {}) or {}).get("cards", [])
     if cards:
         lanes = Lanes(script, cc.TrackType.text, "cards ")

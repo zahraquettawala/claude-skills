@@ -27,6 +27,19 @@ beat, in VIDEO order (a hook can come first even if it was said last):
 and snaps every edge to the audio, so a word ending is never clipped even
 when Whisper's timestamp is early. Cuts only ever land between words.
 
+Soft fillers ("like", "so", "you know", "I mean", "basically"...) are decided
+here too, so nobody picks them by hand on a long video. --soft auto (the
+default) cuts one only where it is plainly filler: cut off by pauses on both
+sides, doubled ("like like"), or straight after an um; "you know" and "I mean"
+also go when a pause sits on either side. Used inside a sentence ("I like
+it", "it was like a dream") it stays. --soft more also cuts them at the start
+of a sentence; --soft keep never cuts them. For the odd call the rules get
+wrong, studio/word_overrides.json ({"cut": [start_s, ...], "keep": [...]},
+word start times) overrides single words.
+
+A block marked "whole": true (or one with no transcribed words, like B-roll)
+is passed through untouched.
+
 `paper` writes the whole ramble as numbered lines marked KEPT or cut, with
 the removed fillers and the time saved, for the person to read before
 rendering. `check` reads studio/mustkeep.json ({"items": ["exact phrase",
@@ -65,8 +78,9 @@ def norm(text):
     return re.sub(r"[^\w']", "", text.lower())
 
 
-def load_words(studio, src):
-    """Word-level transcript for `src` from i-hate-editing's cache."""
+def load_words(studio, src, required=True):
+    """Word-level transcript for `src` from i-hate-editing's cache. With
+    required=False a source with no transcript (B-roll) gives no words."""
     src = str(Path(src).resolve())
     best = None
     for f in sorted((Path(studio) / "transcripts").glob("*.json")):
@@ -78,6 +92,8 @@ def load_words(studio, src):
             continue
         if best is None or d.get("granularity") == "word":
             best = d
+    if not best and not required:
+        return []
     if not best:
         die(f"no transcript for {Path(src).name}: run "
             f"$IHE/scripts/transcribe.py on it first")
@@ -141,9 +157,10 @@ class Envelope:
         return i * FRAME
 
 
-def mark(words, env):
-    """Label each word: keep, filler, stutter, soft (judgement), and the gap
-    after it: pause or ghost (sound with no words: an untranscribed um)."""
+def mark(words, env, soft="auto", overrides=None):
+    """Label each word: keep, filler, stutter, soft_cut (a soft filler judged
+    to be filler), soft (one kept for its meaning); and the gap after it:
+    pause or ghost (sound with no words: an untranscribed um)."""
     out = []
     for i, w in enumerate(words):
         t = norm(w["text"])
@@ -164,7 +181,57 @@ def mark(words, env):
                 gap_kind = ("ghost" if env.voiced(w["end"], words[i + 1]["start"]) >= GHOST_MIN
                             else "pause")
         out.append({**w, "kind": kind, "gap": round(gap, 3), "gap_kind": gap_kind})
+    judge_soft(out, soft)
+    for w in out:
+        for key, kind in (("cut", "soft_cut"), ("keep", "keep")):
+            if any(abs(w["start"] - float(t)) < 0.06 for t in (overrides or {}).get(key, [])):
+                w["kind"] = kind
     return out
+
+
+def judge_soft(out, level):
+    """Decide each soft filler from its pauses and neighbours, so a person
+    never has to go through them one by one."""
+    if level == "keep":
+        return
+    skip = False
+    for i, w in enumerate(out):
+        if skip:
+            skip = False
+            continue
+        if w["kind"] != "soft":
+            continue
+        t = norm(w["text"])
+        prev = out[i - 1] if i else None
+        before = w["start"] - prev["end"] if prev else 9.0
+        after = w["gap"] if i + 1 < len(out) else 9.0
+        pair = i + 1 < len(out) and (t + " " + norm(out[i + 1]["text"])) in SOFT
+        if pair:
+            # "you know" / "I mean" are filler when set off on both sides
+            # ("and, you know, it works"), and meaning when they run into
+            # the sentence ("you know what I mean", "what I mean is").
+            nxt = out[i + 1]
+            after2 = nxt["gap"] if i + 2 < len(out) else 9.0
+            set_before = before >= 0.12 or (prev is not None and
+                                            prev["text"].strip()[-1:] in ",.?!")
+            set_after = after2 >= 0.12 or nxt["text"].strip()[-1:] in ",.?!"
+            if set_before and set_after and not (prev and norm(prev["text"]) in {"what", "that"}):
+                w["kind"] = nxt["kind"] = "soft_cut"
+            elif nxt["kind"] == "soft":
+                nxt["kind"] = "keep"
+            skip = True
+            continue
+        if t not in SOFT:
+            continue
+        isolated = before >= 0.15 and after >= 0.12
+        doubled = i + 1 < len(out) and norm(out[i + 1]["text"]) == t
+        after_um = prev is not None and prev["kind"] == "filler"
+        opener = level == "more" and before >= 0.3
+        if isolated or doubled or after_um or opener:
+            w["kind"] = "soft_cut"
+
+
+CUT = ("filler", "stutter", "soft_cut")
 
 
 def runs_in_block(marked, a, b, env, max_pause):
@@ -173,7 +240,7 @@ def runs_in_block(marked, a, b, env, max_pause):
     inside = [w for w in marked if w["start"] >= a - 0.05 and w["end"] <= b + 0.05]
     runs, cur = [], []
     for w in inside:
-        if w["kind"] in ("filler", "stutter"):
+        if w["kind"] in CUT:
             if cur:
                 runs.append(cur)
             cur = []
@@ -218,6 +285,11 @@ def runs_in_block(marked, a, b, env, max_pause):
     return merged
 
 
+def overrides(studio):
+    p = Path(studio) / "word_overrides.json"
+    return json.loads(p.read_text()) if p.is_file() else None
+
+
 def load_story(studio):
     p = Path(studio) / "story.json"
     if not p.is_file():
@@ -236,8 +308,9 @@ def cmd_scan(args):
     lines = ["# Ramble scan", ""]
     for key, src in srcs.items():
         env = Envelope(src)
-        m = mark(load_words(studio, src), env)
+        m = mark(load_words(studio, src), env, args.soft, overrides(studio))
         fill = [w for w in m if w["kind"] in ("filler", "stutter")]
+        soft_cut = [w for w in m if w["kind"] == "soft_cut"]
         ghosts = [w for w in m if w["gap_kind"] == "ghost"]
         pauses = [w for w in m if w["gap_kind"] == "pause" and w["gap"] > args.max_pause]
         soft = [w for w in m if w["kind"] == "soft"]
@@ -249,8 +322,9 @@ def cmd_scan(args):
                   f"likely um/uh (cut automatically)",
                   f"- {len(pauses)} pauses over {args.max_pause}s, "
                   f"{dead:.0f} s of dead air (cut automatically)",
-                  f"- {len(soft)} soft fillers (like, so, you know...): your "
-                  f"call, never cut automatically",
+                  f"- {len(soft_cut)} soft fillers (like, so, you know...) used "
+                  f"as filler (cut, --soft {args.soft}); {len(soft)} kept "
+                  f"because they carry meaning",
                   f"- room floor {env.floor:.0f} dB, speech threshold "
                   f"{env.thr:.0f} dB", ""]
         for w in fill[:40]:
@@ -274,10 +348,15 @@ def cmd_tighten(args):
         src = story["sources"].get(blk["source"], blk["source"])
         if src not in cache:
             env = Envelope(src, args.thr_db)
-            cache[src] = (env, mark(load_words(studio, src), env))
+            whole_only = all(r.get("whole") for r in story["ranges"]
+                             if story["sources"].get(r["source"], r["source"]) == src)
+            cache[src] = (env, mark(load_words(studio, src, required=not whole_only),
+                                    env, args.soft, overrides(studio)))
         env, m = cache[src]
         a, b = float(blk["start"]), float(blk["end"])
-        runs = runs_in_block(m, a, b, env, args.max_pause)
+        has_words = any(a <= w["start"] and w["end"] <= b for w in m)
+        runs = (runs_in_block(m, a, b, env, args.max_pause)
+                if has_words and not blk.get("whole") else [[a, b, 0, False]])
         before += b - a
         for i, (s, e, n, _) in enumerate(runs):
             ranges.append({"source": blk["source"], "start": round(s, 3),
@@ -306,7 +385,7 @@ def kept_words(studio, edl):
     words = []
     for r in edl["ranges"]:
         src = edl["sources"].get(r["source"], r["source"])
-        for w in load_words(studio, src):
+        for w in load_words(studio, src, required=False):
             mid = (w["start"] + w["end"]) / 2
             if r["start"] <= mid <= r["end"]:
                 words.append(w)
@@ -324,7 +403,14 @@ def cmd_paper(args):
              "are fillers and stutters that are cut. Pauses and untranscribed "
              "ums are cut too but not shown.", ""]
     for key, src in story["sources"].items():
-        words = mark(load_words(studio, src), Envelope(src, args.thr_db))
+        raw = load_words(studio, src, required=False)
+        if not raw:
+            used = [story["ranges"].index(r) + 1 for r in story["ranges"]
+                    if story["sources"].get(r["source"], r["source"]) == src]
+            lines.append(f"## {Path(src).name}\n\n(no speech) used as block(s) "
+                         f"{', '.join(map(str, used)) or 'none'}\n")
+            continue
+        words = mark(raw, Envelope(src, args.thr_db), args.soft, overrides(studio))
         blocks = [r for r in story["ranges"] if story["sources"].get(r["source"], r["source"]) == src]
         # Phrase lines: break on sentence ends and long pauses.
         cur, phrases = [], []
@@ -339,7 +425,7 @@ def cmd_paper(args):
         lines.append(f"## {Path(src).name}\n")
         for n, p in enumerate(phrases, 1):
             mid = (p[0]["start"] + p[-1]["end"]) / 2
-            text = " ".join(f"~~{w['text'].strip()}~~" if w["kind"] in ("filler", "stutter")
+            text = " ".join(f"~~{w['text'].strip()}~~" if w["kind"] in CUT
                             else w["text"].strip() for w in p)
             hit = next((r for r in blocks if r["start"] <= mid <= r["end"]), None)
             stamp = f"`{p[0]['start']:6.1f}s`"
@@ -395,6 +481,8 @@ def main():
                        help="pauses longer than this are cut (s)")
         p.add_argument("--thr-db", type=float, default=None,
                        help="speech threshold in dB; default 12 dB over the room")
+        p.add_argument("--soft", default="auto", choices=["keep", "auto", "more"],
+                       help="soft fillers (like, so, you know): how many to cut")
         if name == "scan":
             p.add_argument("--source", default=None)
         if name == "tighten":

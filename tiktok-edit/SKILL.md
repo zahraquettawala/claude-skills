@@ -42,9 +42,36 @@ this order:
 5. `<footage>/studio/taste.md` if it exists (`$IHE/scripts/taste.py brief`).
    The person's own past corrections beat every default here.
 
-## Pick the workflow
+## Choose the mode first
 
-Look at the footage before choosing: `ffprobe` every file, and run
+Every edit runs in one **mode**, chosen before anything is cut. The mode
+picks the workflow and the look:
+
+| Mode | When | Workflow | Look |
+|---|---|---|---|
+| **talking head** | Sitting and talking to the camera: one long take or a few | `workflows/ramble.md` (scripted short takes: `talking-head.md`) | `styles/shivani.*` |
+| **vlog** | Many clips from a day or an outing, camera moving, talking mixed with moments | `workflows/vlog.md` | `styles/vlog.json` |
+| **montage** | Clips with little or no talking, cut to a song | `workflows/montage.md` | — |
+| **screen** | A screen recording, narrated or silent | `workflows/screen-recording.md` | — |
+| **voiceover** | A voiceover over B-roll, stock or images | `workflows/voiceover.md` | `styles/shivani.*` |
+
+1. **If the person named the mode** ("mode: talking head", "this is a vlog",
+   "a sit-down ramble"), use it. Don't second-guess it.
+2. **If not,** run
+   `python $TT/scripts/detect_mode.py <footage>` and ask once, in one line,
+   with what it found: *"This looks like a talking head (one 6-minute take,
+   mostly talking, steady camera). Edit it that way, or as a vlog?"* Wait for
+   the answer. Never pick silently, because the two paths cut very differently.
+3. Write the mode to `<studio>/mode.txt`, so a resumed session stays on the
+   same path.
+
+Mixed footage is normal (a talking head with screen inserts, a vlog with a
+sit-down section). The mode decides the main path; borrow steps from the
+others for the inserts. Never ask about fonts, transitions or levels.
+
+## Look at the footage
+
+Before cutting in any mode: `ffprobe` every file, and run
 `contact_sheet.py` on **every** clip and photo, then read the sheets.
 
 **Upright check, every time.** On each sheet, check the picture is upright:
@@ -64,19 +91,6 @@ again before going on. Photos get the same check (`screenshot_card.py
 --rotate`). Tell the person which files were turned. Never present a cut
 built on a sideways clip.
 
-| Footage | Workflow | What drives the cut |
-|---|---|---|
-| Someone talking to camera, scripted or in short takes | `workflows/talking-head.md` | The transcript (i-hate-editing as is) |
-| One long unscripted take (a sit-down ramble) | `workflows/ramble.md` | An outline of what was said, then the transcript |
-| Clips with no talking, cut to a song or sound | `workflows/montage.md` | The beat grid (`music_beats.py`) |
-| A screen recording, narrated or silent | `workflows/screen-recording.md` | Dead-time detection + transcript |
-| A voiceover over stock, B-roll or images | `workflows/voiceover.md` | The voiceover's transcript |
-
-Mixed footage is normal (a talking head with screen inserts, a montage with a
-spoken intro). Pick the workflow for whatever drives the timing and borrow
-steps from the others. Ask the person only if you really cannot tell what the
-video is for. Never ask about fonts, transitions or levels.
-
 ## Style
 
 The default look for talking-to-camera and voiceover videos is **Shivani's
@@ -84,7 +98,9 @@ style** (`styles/shivani.md`): tight jump cuts with no dead air, one word on
 screen at a time in the centre in white ChunkFive, and a two-line title held
 for the whole video in the upper third. It replaces i-hate-editing's own house
 style (green accent, hook band card, 27%-from-bottom captions) for those
-videos. Its montage/promo rules are in `workflows/montage.md`.
+videos. Its montage/promo rules are in `workflows/montage.md`. Vlogs use
+`styles/vlog.json` instead: a hook title for the first ~3 s, short captions
+only where someone talks, natural sound and a music bed (`workflows/vlog.md`).
 
 Use another look only when the person asks for one or their `taste.md` says
 so. Their corrections to this style go in `taste.md` like any other.
@@ -202,6 +218,7 @@ CapCut's cloud space (same account), then open it in the phone app.
 | `tiktok_export.py` | Final encode, loudness, no-music copy, safe-zone frames |
 | `capcut_export.py` | The same edit as an editable CapCut desktop project |
 | `apply_style.py` | Restyles the composition to a style preset, then renders |
+| `detect_mode.py` | Suggests the mode (talking head, vlog, montage, screen) from the footage |
 | `ramble.py` | Ramble cuts: fillers, untranscribed ums and dead air out; paper edit; must-keep check |
 | `screenshot_card.py` | Screenshot to floating card clip, with its pop/whoosh |
 

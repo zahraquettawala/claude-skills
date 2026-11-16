@@ -1,0 +1,15 @@
+{
+  "name": "vlog",
+  "about": "Day-in-the-life / out-and-about vlog: a hook title for the first seconds, short captions only where someone talks, natural sound kept, a music bed under it all.",
+  "font": "ChunkFive",
+  "font_file": "assets/fonts/ChunkFive-Regular.ttf",
+  "text_color": "#FFFFFF",
+  "captions": {"words": 3, "y": -0.35, "size_px": 76, "capcut_size": 9.0},
+  "title": {"whole_video": false, "seconds": 3.0, "y": 0.45, "fade": false,
+            "size_px": 84, "capcut_size": 11.0, "max_lines": 2},
+  "cut": {"pad": 0.03, "max_silence": 0.25, "target_seconds": 45,
+          "broll_seconds": [0.8, 2.5]},
+  "cards": {"width_px": 968, "border_px": 4, "scale": 0.7, "x": -0.08,
+            "y": -0.24, "seconds": [2, 4], "count": [0, 3],
+            "sfx": "pop_whoosh", "sfx_lead": 0.17}
+}
